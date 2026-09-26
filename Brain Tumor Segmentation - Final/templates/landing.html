@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroSeg AI - Advanced Brain Tumor Segmentation & MRI Analytics</title>
+    
+    <!-- Google Fonts & Gill Sans MT Fallbacks -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Styling -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="landing-page">
+    <div class="landing-container">
+        
+        <!-- Header / Navigation Bar -->
+        <header class="landing-header">
+            <div class="logo-area" onclick="showSection('home')">
+                <i class="fa-solid fa-brain brain-logo-glow"></i>
+                <div class="brand-info">
+                    <h1 style="font-family: var(--font-family);">NeuroSeg AI</h1>
+                    <span class="sub-brand">MRI Brain Tumor Segmentation</span>
+                </div>
+            </div>
+            
+            <nav class="nav-actions">
+                <button class="nav-btn" id="nav-home" onclick="showSection('home')">
+                    <i class="fa-solid fa-house"></i> Home
+                </button>
+                <button class="nav-btn" id="nav-about" onclick="showSection('about')">
+                    <i class="fa-solid fa-circle-info"></i> About
+                </button>
+                <button class="nav-btn nav-btn-outline" id="nav-login" onclick="openAuthModal('login')">
+                    <i class="fa-solid fa-right-to-bracket"></i> Login
+                </button>
+                <button class="nav-btn nav-btn-primary" id="nav-signup" onclick="openAuthModal('signup')">
+                    <i class="fa-solid fa-user-plus"></i> Sign Up
+                </button>
+            </nav>
+        </header>
+
+        <!-- Flash Messages Toast Notification -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="toast-container" id="toast-container">
+              {% for category, message in messages %}
+                <div class="toast toast-{{ category }}">
+                  <i class="fa-solid {% if category == 'success' %}fa-circle-check{% elif category == 'danger' %}fa-circle-exclamation{% else %}fa-circle-info{% endif %}"></i>
+                  <span>{{ message }}</span>
+                  <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <!-- Main Home Hero Section -->
+        <section class="hero-section section-view active" id="section-home">
+            
+            <!-- 2-Column Hero Header -->
+            <div class="hero-2col">
+                <div class="hero-text-col">
+                    <div class="hero-badge">
+                        <i class="fa-solid fa-microscope"></i> Next-Gen Clinical Medical AI Platform
+                    </div>
+                    <h1 class="hero-title">
+                        Precision 3D Brain Tumor <br>
+                        <span class="highlight-text">Segmentation & Analytics</span>
+                    </h1>
+                    <p class="hero-description">
+                        Empowering neuro-radiologists and oncologists with multi-scale deep learning (Attention U-Net + HRNet-OCR). 
+                        Upload multi-modal MRI scans (FLAIR & T1ce) to segment sub-regions and extract clinical volumetric metrics in under 2 seconds.
+                    </p>
+
+                    <!-- 3 Action Buttons -->
+                    <div class="hero-action-buttons" style="margin-bottom: 2rem;">
+                        <button class="hero-btn btn-signup" onclick="openAuthModal('signup')">
+                            <i class="fa-solid fa-user-plus"></i> Sign Up Account
+                        </button>
+                        <button class="hero-btn btn-login" onclick="openAuthModal('login')">
+                            <i class="fa-solid fa-right-to-bracket"></i> Login to Dashboard
+                        </button>
+                        <button class="hero-btn btn-about" onclick="showSection('about')">
+                            <i class="fa-solid fa-circle-info"></i> About System
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Hero Image Showcase Column -->
+                <div class="hero-image-col">
+                    <div class="hero-img-card">
+                        <img src="{{ url_for('static', filename='images/hero_brain_scan.png') }}" alt="3D Holographic Brain MRI Tumor Scan">
+                        <div class="img-overlay-badge">
+                            <div>
+                                <div class="badge-info-text">Hybrid Deep Learning Model</div>
+                                <div class="badge-info-sub">BraTS Benchmark Validated • Attention U-Net</div>
+                            </div>
+                            <div class="badge-status-dot" title="AI Model Active"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Platform Feature Highlights Grid -->
+            <div class="hero-features-grid" style="margin-top: 3rem; margin-bottom: 4rem;">
+                <div class="feature-card glass">
+                    <div class="feature-icon red"><i class="fa-solid fa-cubes"></i></div>
+                    <h3>3D Volumetric Processing</h3>
+                    <p>Processes axial 3D MRI volume stacks (155 slices per patient) with real-time slice index browsing.</p>
+                </div>
+                <div class="feature-card glass">
+                    <div class="feature-icon yellow"><i class="fa-solid fa-layer-group"></i></div>
+                    <h3>Multi-Region Sub-Masks</h3>
+                    <p>Accurately delineates Necrotic Core (NCR), Peritumoral Edema (ED), and Enhancing Tumor (ET).</p>
+                </div>
+                <div class="feature-card glass">
+                    <div class="feature-icon blue"><i class="fa-solid fa-chart-line"></i></div>
+                    <h3>Clinical Metric Suite</h3>
+                    <p>Generates Dice Similarity Coefficients, volume ratios, and interactive side-by-side slice comparison.</p>
+                </div>
+            </div>
+
+            <!-- Visual Showcase Section with Images -->
+            <div class="section-header-center">
+                <div class="section-tag"><i class="fa-solid fa-eye"></i> Visual Demonstration</div>
+                <h2 class="section-title">Interactive Clinical Software Preview</h2>
+                <p class="section-subtitle">Designed for seamless diagnostic workflows, offering high-contrast overlay controls and real-time volumetric analytics.</p>
+            </div>
+
+            <div class="image-showcase-grid">
+                <div class="showcase-card glass">
+                    <div class="showcase-img-wrap">
+                        <img src="{{ url_for('static', filename='images/dashboard_preview.png') }}" alt="Medical AI Dashboard Viewports">
+                    </div>
+                    <div class="showcase-body">
+                        <h3>Interactive MRI Viewport Suite</h3>
+                        <p>Provides dual synchronized viewports for FLAIR, T1ce, Ground Truth reference, and AI Prediction masks with dynamic opacity sliders.</p>
+                    </div>
+                </div>
+
+                <div class="showcase-card glass">
+                    <div class="showcase-img-wrap">
+                        <img src="{{ url_for('static', filename='images/neural_network.png') }}" alt="AI Deep Learning Pipeline">
+                    </div>
+                    <div class="showcase-body">
+                        <h3>Multi-Scale Feature Extraction</h3>
+                        <p>Leverages multi-channel Attention U-Net encoders to extract deep spatial context from raw NIfTI `.nii.gz` volumetric MRI files.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step-by-Step Clinical Workflow -->
+            <div class="section-header-center">
+                <div class="section-tag"><i class="fa-solid fa-list-check"></i> Systematic Process</div>
+                <h2 class="section-title">How NeuroSeg AI Works</h2>
+                <p class="section-subtitle">From scan upload to diagnostic volumetric analytics in 4 simple steps.</p>
+            </div>
+
+            <div class="workflow-grid">
+                <div class="workflow-card">
+                    <div class="step-num">01</div>
+                    <div class="workflow-icon"><i class="fa-solid fa-upload"></i></div>
+                    <h3>Upload Scan Data</h3>
+                    <p>Select built-in sample cases or upload custom multi-modal NIfTI scans (FLAIR and T1ce files).</p>
+                </div>
+
+                <div class="workflow-card">
+                    <div class="step-num">02</div>
+                    <div class="workflow-icon"><i class="fa-solid fa-microchip"></i></div>
+                    <h3>Hybrid AI Inference</h3>
+                    <p>Pre-warmed Attention U-Net model predicts multi-class tumor boundaries across all 3D axial slices.</p>
+                </div>
+
+                <div class="workflow-card">
+                    <div class="step-num">03</div>
+                    <div class="workflow-icon"><i class="fa-solid fa-sliders"></i></div>
+                    <h3>Slice Navigation</h3>
+                    <p>Use interactive sliders to inspect axial slices and toggle individual sub-region mask overlays.</p>
+                </div>
+
+                <div class="workflow-card">
+                    <div class="step-num">04</div>
+                    <div class="workflow-icon"><i class="fa-solid fa-square-poll-vertical"></i></div>
+                    <h3>Volumetric Analytics</h3>
+                    <p>View Dice metrics, tumor volume ratios (cm³), and clinical diagnostic summary notes instantly.</p>
+                </div>
+            </div>
+
+            <!-- Deep Learning Architecture Breakdown -->
+            <div class="section-header-center">
+                <div class="section-tag"><i class="fa-solid fa-brain"></i> Neural Network Tech</div>
+                <h2 class="section-title">Deep Learning Architecture</h2>
+                <p class="section-subtitle">Engineered for precision segmentation across challenging brain tumor morphologies.</p>
+            </div>
+
+            <div class="arch-grid">
+                <div class="arch-card">
+                    <span class="arch-badge badge-cyan">Encoder-Decoder</span>
+                    <h3>Attention U-Net</h3>
+                    <p>Incorporates spatial attention gates to focus learning on tumor boundaries while suppressing background noise.</p>
+                    <ul class="arch-list">
+                        <li><i class="fa-solid fa-check"></i> Multi-scale skip connections</li>
+                        <li><i class="fa-solid fa-check"></i> Spatial attention coefficients</li>
+                        <li><i class="fa-solid fa-check"></i> Dice loss optimization</li>
+                    </ul>
+                </div>
+
+                <div class="arch-card">
+                    <span class="arch-badge badge-purple">High-Res Context</span>
+                    <h3>HRNet-OCR Module</h3>
+                    <p>Maintains high-resolution representations throughout the network to capture fine anatomical details.</p>
+                    <ul class="arch-list">
+                        <li><i class="fa-solid fa-check"></i> Parallel high-res streams</li>
+                        <li><i class="fa-solid fa-check"></i> Object-contextual representations</li>
+                        <li><i class="fa-solid fa-check"></i> Precise boundary alignment</li>
+                    </ul>
+                </div>
+
+                <div class="arch-card">
+                    <span class="arch-badge badge-pink">Feature Fusion</span>
+                    <h3>Tumor-Aware Fusion (TAFF)</h3>
+                    <p>Integrates multi-modal FLAIR and T1ce features to differentiate overlapping necrotic core and edema boundaries.</p>
+                    <ul class="arch-list">
+                        <li><i class="fa-solid fa-check"></i> Dual-channel MRI synthesis</li>
+                        <li><i class="fa-solid fa-check"></i> Sub-region color mapping</li>
+                        <li><i class="fa-solid fa-check"></i> BraTS benchmark validation</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bottom CTA Banner Card -->
+            <div class="cta-banner-card">
+                <h2>Ready to Experience Precision AI Segmentation?</h2>
+                <p>Sign up now to access your personal dashboard, store your user preferences securely in SQLite, and analyze multi-modal MRI scans instantly.</p>
+                <div class="cta-actions">
+                    <button class="hero-btn btn-signup" onclick="openAuthModal('signup')">
+                        <i class="fa-solid fa-user-plus"></i> Create Free Account
+                    </button>
+                    <button class="hero-btn btn-login" onclick="openAuthModal('login')">
+                        <i class="fa-solid fa-right-to-bracket"></i> Login to Dashboard
+                    </button>
+                    <button class="hero-btn btn-about" onclick="showSection('about')">
+                        <i class="fa-solid fa-circle-info"></i> Read Documentation
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- About Section View -->
+        <section class="about-section section-view" id="section-about">
+            <div class="about-card glass">
+                <div class="about-header">
+                    <i class="fa-solid fa-circle-info about-main-icon"></i>
+                    <h2>About NeuroSeg AI System</h2>
+                    <p class="subtitle">Deep Learning Architecture, Dataset Benchmarks & Volumetric Analytics</p>
+                </div>
+
+                <div class="about-grid">
+                    <div class="about-box">
+                        <div class="box-icon"><i class="fa-solid fa-brain"></i></div>
+                        <h3>Hybrid AI Architecture</h3>
+                        <p>Combines <strong>Attention U-Net</strong> for multi-scale feature extraction with <strong>HRNet-OCR</strong> for high-resolution contextual representation. Enhanced with Tumor-Aware Feature Fusion (TAFF) for high Dice scores across complex tumor geometries.</p>
+                    </div>
+
+                    <div class="about-box">
+                        <div class="box-icon"><i class="fa-solid fa-palette"></i></div>
+                        <h3>Sub-Region Tumor Classes</h3>
+                        <ul class="subregion-list">
+                            <li><span class="dot red"></span> <strong>NCR / NET (Red):</strong> Necrotic Core & Non-Enhancing Tumor</li>
+                            <li><span class="dot yellow"></span> <strong>ED (Yellow):</strong> Peritumoral Edema</li>
+                            <li><span class="dot blue"></span> <strong>ET (Blue):</strong> Enhancing Tumor</li>
+                        </ul>
+                    </div>
+
+                    <div class="about-box">
+                        <div class="box-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                        <h3>Secure User Database</h3>
+                        <p>Clinician and user accounts are securely stored in an encrypted SQLite database (`users.db`) using PBKDF2/SHA256 password hashing and session tokens.</p>
+                    </div>
+
+                    <div class="about-box">
+                        <div class="box-icon"><i class="fa-solid fa-bolt"></i></div>
+                        <h3>Real-time Inference</h3>
+                        <p>Instant pre-warmed TensorFlow/Keras model inference for raw NIfTI `.nii` and compressed `.nii.gz` volumetric scans.</p>
+                    </div>
+                </div>
+
+                <div class="about-footer-actions">
+                    <button class="hero-btn btn-signup" onclick="openAuthModal('signup')">
+                        <i class="fa-solid fa-user-plus"></i> Create Account
+                    </button>
+                    <button class="hero-btn btn-login" onclick="openAuthModal('login')">
+                        <i class="fa-solid fa-right-to-bracket"></i> Login Now
+                    </button>
+                    <button class="hero-btn btn-about" onclick="showSection('home')">
+                        <i class="fa-solid fa-house"></i> Return Home
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="landing-footer">
+            <div class="footer-brand">
+                <i class="fa-solid fa-brain" style="color: var(--accent);"></i> NeuroSeg AI Platform
+            </div>
+            <div class="footer-links">
+                <a href="javascript:void(0)" onclick="showSection('home')">Home</a>
+                <a href="javascript:void(0)" onclick="showSection('about')">About System</a>
+                <a href="javascript:void(0)" onclick="openAuthModal('login')">Login</a>
+                <a href="javascript:void(0)" onclick="openAuthModal('signup')">Sign Up</a>
+            </div>
+            <div class="footer-copy">
+                &copy; 2026 NeuroSeg AI • Brain Tumor Volumetric Analytics System • All Rights Reserved.
+            </div>
+        </footer>
+
+        <!-- Authentication Modal (Sign Up & Login) -->
+        <div class="auth-modal-overlay" id="authModalOverlay" onclick="closeAuthModalOnOuter(event)">
+            <div class="auth-modal-card glass">
+                <button class="modal-close-btn" onclick="closeAuthModal()">&times;</button>
+                
+                <!-- Modal Tabs -->
+                <div class="auth-tabs">
+                    <button class="auth-tab-btn" id="tab-login-btn" onclick="switchAuthTab('login')">
+                        <i class="fa-solid fa-right-to-bracket"></i> Login
+                    </button>
+                    <button class="auth-tab-btn" id="tab-signup-btn" onclick="switchAuthTab('signup')">
+                        <i class="fa-solid fa-user-plus"></i> Sign Up
+                    </button>
+                </div>
+
+                <!-- Alert Feedback Inside Modal -->
+                <div class="modal-alert-box" id="modalAlertBox" style="display: none;"></div>
+
+                <!-- Login Form -->
+                <form class="auth-form" id="loginForm" onsubmit="handleAuthSubmit(event, 'login')">
+                    <div class="form-title">
+                        <h2>Welcome Back</h2>
+                        <p>Log in to access your NeuroSeg AI MRI Dashboard</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="login-email"><i class="fa-solid fa-envelope"></i> Email Address</label>
+                        <input type="email" id="login-email" name="email" placeholder="doctor@hospital.org" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="login-password"><i class="fa-solid fa-lock"></i> Password</label>
+                        <input type="password" id="login-password" name="password" placeholder="••••••••" required>
+                    </div>
+
+                    <button type="submit" class="auth-submit-btn btn-login-submit" id="loginSubmitBtn">
+                        <span class="btn-text">Sign In <i class="fa-solid fa-arrow-right"></i></span>
+                        <span class="btn-spinner" style="display: none;"><i class="fa-solid fa-spinner fa-spin"></i> Authenticating...</span>
+                    </button>
+
+                    <div class="form-footer">
+                        <span>Don't have an account?</span>
+                        <a href="javascript:void(0)" onclick="switchAuthTab('signup')">Sign Up Here</a>
+                    </div>
+                </form>
+
+                <!-- Sign Up Form -->
+                <form class="auth-form" id="signupForm" onsubmit="handleAuthSubmit(event, 'signup')" style="display: none;">
+                    <div class="form-title">
+                        <h2>Create New Account</h2>
+                        <p>Register to start segmenting MRI scans with AI</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signup-name"><i class="fa-solid fa-user"></i> Full Name / Clinical Title</label>
+                        <input type="text" id="signup-name" name="full_name" placeholder="Dr. Sarah Connor" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signup-email"><i class="fa-solid fa-envelope"></i> Email Address</label>
+                        <input type="email" id="signup-email" name="email" placeholder="sarah.connor@medical.org" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signup-password"><i class="fa-solid fa-lock"></i> Password</label>
+                        <input type="password" id="signup-password" name="password" placeholder="Min. 6 characters" minlength="6" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signup-confirm-password"><i class="fa-solid fa-shield-halved"></i> Confirm Password</label>
+                        <input type="password" id="signup-confirm-password" name="confirm_password" placeholder="Re-type password" minlength="6" required>
+                    </div>
+
+                    <button type="submit" class="auth-submit-btn btn-signup-submit" id="signupSubmitBtn">
+                        <span class="btn-text">Register & Access Dashboard <i class="fa-solid fa-arrow-right"></i></span>
+                        <span class="btn-spinner" style="display: none;"><i class="fa-solid fa-spinner fa-spin"></i> Creating Account...</span>
+                    </button>
+
+                    <div class="form-footer">
+                        <span>Already have an account?</span>
+                        <a href="javascript:void(0)" onclick="switchAuthTab('login')">Login Here</a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Script for interactive switching and authentication -->
+    <script>
+        const initialSection = "{{ active_section }}";
+
+        function showSection(sectionName) {
+            document.querySelectorAll('.section-view').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+
+            if (sectionName === 'about') {
+                document.getElementById('section-about').classList.add('active');
+                document.getElementById('nav-about').classList.add('active');
+            } else {
+                document.getElementById('section-home').classList.add('active');
+                document.getElementById('nav-home').classList.add('active');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openAuthModal(mode) {
+            document.getElementById('authModalOverlay').classList.add('active');
+            switchAuthTab(mode);
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModalOverlay').classList.remove('active');
+            hideModalAlert();
+        }
+
+        function closeAuthModalOnOuter(e) {
+            if (e.target.id === 'authModalOverlay') {
+                closeAuthModal();
+            }
+        }
+
+        function switchAuthTab(mode) {
+            hideModalAlert();
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+            const loginBtn = document.getElementById('tab-login-btn');
+            const signupBtn = document.getElementById('tab-signup-btn');
+
+            if (mode === 'signup') {
+                loginForm.style.display = 'none';
+                signupForm.style.display = 'flex';
+                loginBtn.classList.remove('active');
+                signupBtn.classList.add('active');
+            } else {
+                signupForm.style.display = 'none';
+                loginForm.style.display = 'flex';
+                signupBtn.classList.remove('active');
+                loginBtn.classList.add('active');
+            }
+        }
+
+        function showModalAlert(message, type = 'danger') {
+            const box = document.getElementById('modalAlertBox');
+            box.className = `modal-alert-box alert-${type}`;
+            box.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i> <span>${message}</span>`;
+            box.style.display = 'flex';
+        }
+
+        function hideModalAlert() {
+            const box = document.getElementById('modalAlertBox');
+            box.style.display = 'none';
+            box.innerHTML = '';
+        }
+
+        async function handleAuthSubmit(event, mode) {
+            event.preventDefault();
+            hideModalAlert();
+
+            const form = event.target;
+            const submitBtn = mode === 'signup' ? document.getElementById('signupSubmitBtn') : document.getElementById('loginSubmitBtn');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const btnSpinner = submitBtn.querySelector('.btn-spinner');
+
+            const formData = new FormData(form);
+            const payload = Object.fromEntries(formData.entries());
+
+            if (mode === 'signup' && payload.password !== payload.confirm_password) {
+                showModalAlert('Passwords do not match. Please re-enter passwords.', 'danger');
+                return;
+            }
+
+            btnText.style.display = 'none';
+            btnSpinner.style.display = 'inline-block';
+            submitBtn.disabled = true;
+
+            try {
+                const endpoint = mode === 'signup' ? '/signup' : '/login';
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const resData = await response.json();
+
+                if (response.ok && resData.success) {
+                    showModalAlert(resData.message || 'Success! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = resData.redirect || '/';
+                    }, 600);
+                } else {
+                    showModalAlert(resData.error || 'An error occurred during authentication.', 'danger');
+                }
+            } catch (err) {
+                showModalAlert('Network connection error. Please check backend server.', 'danger');
+            } finally {
+                btnText.style.display = 'inline-block';
+                btnSpinner.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (initialSection === 'signup' || initialSection === 'login') {
+                showSection('home');
+                openAuthModal(initialSection);
+            } else if (initialSection === 'about') {
+                showSection('about');
+            } else {
+                showSection('home');
+            }
+        });
+    </script>
+</body>
+</html>

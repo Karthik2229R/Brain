@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroSeg AI - Brain Tumor Segmentation Dashboard</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom Styling -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Glassmorphic Navbar -->
+        <header class="app-header">
+            <div class="logo-area">
+                <i class="fa-solid fa-brain brain-logo"></i>
+                <div class="brand-info">
+                    <h1>NeuroSeg AI</h1>
+                    <span class="sub-brand">MRI Brain Tumor Segmentation Hub</span>
+                </div>
+            </div>
+            
+            <div class="model-badge">
+                <span class="badge-title">Comparison workspace</span>
+                <span class="badge-body">Attention U-Net &amp; HRNet-OCR</span>
+            </div>
+
+            <div class="user-profile-badge">
+                <div class="user-info-pill">
+                    <i class="fa-solid fa-user-doctor"></i>
+                    <span>{{ user_name }}</span>
+                </div>
+                <a href="{{ url_for('logout') }}" class="logout-btn" title="Sign out of session">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </a>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Grid -->
+        <main class="dashboard-grid">
+            
+            <!-- Left Side: Controls -->
+            <section class="controls-column">
+                
+                <!-- Data Source Selection -->
+                <div class="card glass">
+                    <div class="card-header">
+                        <i class="fa-solid fa-database card-icon"></i>
+                        <h2>1. Select Scan Source</h2>
+                    </div>
+                    <div class="card-body">
+                        <!-- Source Selector Tabs -->
+                        <div class="tabs">
+                            <button class="tab-btn active" id="tab-sample">Sample Patient</button>
+                            <button class="tab-btn" id="tab-upload">Upload Custom</button>
+                        </div>
+
+                        <!-- Sample Patient Tab -->
+                        <div class="tab-content" id="content-sample">
+                            <label for="sample-selector">Choose Preloaded Patient Volume:</label>
+                            <select id="sample-selector" class="dropdown">
+                                <option value="" disabled selected>Select a volume...</option>
+                                <option value="100">BraTS20_Patient_100 (HGG)</option>
+                                <option value="101">BraTS20_Patient_101 (HGG)</option>
+                                <option value="102">BraTS20_Patient_102 (HGG)</option>
+                                <option value="103">BraTS20_Patient_103 (HGG)</option>
+                                <option value="104">BraTS20_Patient_104 (LGG)</option>
+                                <option value="105">BraTS20_Patient_105 (LGG)</option>
+                            </select>
+                            <button id="load-sample-btn" class="btn primary-btn"><i class="fa-solid fa-cloud-arrow-down"></i> Load Sample Volume</button>
+                        </div>
+
+                        <!-- Upload Tab -->
+                        <div class="tab-content hidden" id="content-upload">
+                            <form id="upload-form" enctype="multipart/form-data">
+                                <div class="upload-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                    <div class="upload-area" id="dropzone-flair">
+                                        <input type="file" id="file-flair" name="flair" accept=".nii,.nii.gz" class="file-input">
+                                        <div class="upload-prompt">
+                                            <i class="fa-solid fa-file-medical"></i>
+                                            <p>FLAIR Scan</p>
+                                            <span id="label-flair" class="file-label">No file</span>
+                                        </div>
+                                    </div>
+                                    <div class="upload-area" id="dropzone-t1">
+                                        <input type="file" id="file-t1" name="t1" accept=".nii,.nii.gz" class="file-input">
+                                        <div class="upload-prompt">
+                                            <i class="fa-solid fa-file-medical"></i>
+                                            <p>T1 Scan</p>
+                                            <span id="label-t1" class="file-label">No file</span>
+                                        </div>
+                                    </div>
+                                    <div class="upload-area" id="dropzone-t1ce">
+                                        <input type="file" id="file-t1ce" name="t1ce" accept=".nii,.nii.gz" class="file-input">
+                                        <div class="upload-prompt">
+                                            <i class="fa-solid fa-file-medical"></i>
+                                            <p>T1ce Scan</p>
+                                            <span id="label-t1ce" class="file-label">No file</span>
+                                        </div>
+                                    </div>
+                                    <div class="upload-area" id="dropzone-t2">
+                                        <input type="file" id="file-t2" name="t2" accept=".nii,.nii.gz" class="file-input">
+                                        <div class="upload-prompt">
+                                            <i class="fa-solid fa-file-medical"></i>
+                                            <p>T2 Scan</p>
+                                            <span id="label-t2" class="file-label">No file</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" id="upload-btn" class="btn primary-btn mt-3"><i class="fa-solid fa-microchip"></i> Run Segmentation with Both Models</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation & Visualization Settings -->
+                <div class="card glass mt-3">
+                    <div class="card-header">
+                        <i class="fa-solid fa-sliders card-icon"></i>
+                        <h2>2. Controller</h2>
+                    </div>
+                    <div class="card-body">
+                        <!-- MRI Modality Selector -->
+                        <div class="settings-group">
+                            <h3>MRI Modality Channel</h3>
+                            <div class="segmented-control">
+                                <button class="segment-btn active" data-modality="flair">FLAIR</button>
+                                <button class="segment-btn" data-modality="t1ce">T1ce</button>
+                            </div>
+                        </div>
+
+                        <!-- Slice Navigation Slider -->
+                        <div class="settings-group mt-3">
+                            <div class="slider-header">
+                                <h3>Slice Navigator</h3>
+                                <span class="slice-counter">Slice <b id="current-slice-num">22</b> / 121</span>
+                            </div>
+                            <input type="range" id="slice-slider" class="range-slider" min="22" max="121" value="22" disabled>
+                            
+                            <!-- Video-like Playback -->
+                            <div class="playback-controls">
+                                <button id="play-btn" class="icon-btn" disabled><i class="fa-solid fa-play"></i></button>
+                                <button id="stop-btn" class="icon-btn" disabled><i class="fa-solid fa-stop"></i></button>
+                                <span class="playback-speed">
+                                    <i class="fa-solid fa-gauge-high"></i>
+                                    <select id="playback-fps" class="mini-selector">
+                                        <option value="10">10 FPS</option>
+                                        <option value="20" selected>20 FPS</option>
+                                        <option value="30">30 FPS</option>
+                                    </select>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Sub-region Legend and Opacity -->
+                        <div class="settings-group mt-3">
+                            <h3>Segmentation Overlay Layers</h3>
+                            
+                            <!-- Edema -->
+                            <div class="layer-control">
+                                <span class="legend-color edema-bg"></span>
+                                <div class="layer-info">
+                                    <span class="layer-name">Peritumoral Edema (ED)</span>
+                                    <span class="layer-description">Fluid accumulation around tumor</span>
+                                </div>
+                                <input type="range" class="opacity-slider" id="opacity-edema" min="0" max="1" step="0.1" value="0.7">
+                            </div>
+
+                            <!-- Necrotic Core -->
+                            <div class="layer-control mt-2">
+                                <span class="legend-color core-bg"></span>
+                                <div class="layer-info">
+                                    <span class="layer-name">Necrotic / Non-enhancing Core (TC)</span>
+                                    <span class="layer-description">Dead tissues & tumor center</span>
+                                </div>
+                                <input type="range" class="opacity-slider" id="opacity-core" min="0" max="1" step="0.1" value="0.7">
+                            </div>
+
+                            <!-- Enhancing Tumor -->
+                            <div class="layer-control mt-2">
+                                <span class="legend-color enhancing-bg"></span>
+                                <div class="layer-info">
+                                    <span class="layer-name">Enhancing Tumor (ET)</span>
+                                    <span class="layer-description">Active proliferating tumor cells</span>
+                                </div>
+                                <input type="range" class="opacity-slider" id="opacity-enhancing" min="0" max="1" step="0.1" value="0.8">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Side: Viewport comparison -->
+            <section class="viewport-column">
+                
+                <!-- Main MRI Scan Viewer -->
+                <div class="card glass flex-fill">
+                    <div class="card-header justify-between">
+                        <div class="header-left">
+                            <i class="fa-solid fa-eye card-icon"></i>
+                            <h2>3. MRI Review Viewport</h2>
+                        </div>
+                        <div class="header-right">
+                            <span class="coords-tracker"><i class="fa-solid fa-location-crosshairs"></i> Voxel: <b id="voxel-coords">X: -, Y: -</b></span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body viewports-wrapper">
+                        <!-- Loading Overlay -->
+                        <div class="viewport-loader hidden" id="viewport-loader">
+                            <div class="loader-spinner"></div>
+                            <span class="loader-text">Preparing MRI for independent model segmentation...</span>
+                        </div>
+
+                        <!-- Viewport Left: Input MRI + Overlay -->
+                        <div class="viewport-container">
+                            <div class="viewport-title">Original MRI / FLAIR</div>
+                            <div class="canvas-wrapper">
+                                <!-- Base MRI Slice image -->
+                                <img id="slice-image-pred" class="mri-slice-base" src="" alt="Load a patient scan to display">
+                                <!-- Layered Canvas overlay for predictions -->
+                                <canvas id="canvas-mask-pred" class="mask-canvas-overlay legacy-model-overlay"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Viewport Right: Reference/GT -->
+                        <div class="viewport-container" id="gt-viewport-container">
+                            <div class="viewport-title">Expert Annotations (Ground Truth)</div>
+                            <div class="canvas-wrapper">
+                                <!-- Base MRI Slice image -->
+                                <img id="slice-image-gt" class="mri-slice-base" src="" alt="Load a patient scan to display">
+                                <!-- Layered Canvas overlay for ground truth -->
+                                <canvas id="canvas-mask-gt" class="mask-canvas-overlay"></canvas>
+                            </div>
+                            <div class="no-gt-watermark hidden" id="no-gt-watermark">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                <span>No Expert Label Available for Custom Scans</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Stats and Analytics -->
+                <div class="card glass mt-3">
+                    <div class="card-header">
+                        <i class="fa-solid fa-chart-line card-icon"></i>
+                        <h2>4. Volumetric Analytics</h2>
+                    </div>
+                    <div class="card-body analytics-grid">
+                        <!-- Chart Area -->
+                        <div class="chart-container">
+                            <canvas id="tumor-distribution-chart"></canvas>
+                        </div>
+                        
+                        <!-- Volume Report Table -->
+                        <div class="volume-report">
+                            <h3>Estimated Tumor Volumes</h3>
+                            <div class="volume-cards-grid">
+                                
+                                <div class="volume-card">
+                                    <div class="volume-label">Whole Tumor (WT)</div>
+                                    <div class="volume-value"><span id="vol-wt">-</span> <span class="vol-unit">cm³</span></div>
+                                    <div class="gt-reference" id="gt-ref-wt">GT: - cm³</div>
+                                </div>
+
+                                <div class="volume-card">
+                                    <div class="volume-label">Tumor Core (TC)</div>
+                                    <div class="volume-value"><span id="vol-tc">-</span> <span class="vol-unit">cm³</span></div>
+                                    <div class="gt-reference" id="gt-ref-tc">GT: - cm³</div>
+                                </div>
+
+                                <div class="volume-card">
+                                    <div class="volume-label">Enhancing Tumor (ET)</div>
+                                    <div class="volume-value"><span id="vol-et">-</span> <span class="vol-unit">cm³</span></div>
+                                    <div class="gt-reference" id="gt-ref-et">GT: - cm³</div>
+                                </div>
+
+                            </div>
+
+                            <div class="diagnostic-box mt-3">
+                                <h4><i class="fa-solid fa-circle-info"></i> Diagnostic Notes</h4>
+                                <p id="diagnostic-text">Please load or upload MRI scans to generate automated diagnostic stats.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+
+        <!-- Independent model output panels. Values are populated only from the
+             per-model inference payload returned by the API. -->
+        <section class="model-results" id="model-results" aria-live="polite">
+            <div class="results-intro">
+                <span class="section-kicker">Prediction results</span>
+                <h2>Same MRI, independently evaluated</h2>
+                <p>Each model keeps its own predicted mask, overlay, and real metrics calculated against the uploaded ground-truth mask.</p>
+            </div>
+
+            <div id="model-result-panels" class="model-result-panels"></div>
+
+            <div class="comparison-card" id="comparison-section">
+                <div class="comparison-heading">
+                    <div>
+                        <span class="section-kicker">Model comparison</span>
+                        <h2>Attention U-Net vs HRNet-OCR</h2>
+                    </div>
+                    <p>Best values are highlighted. Higher is better. Upload the matching ground-truth mask to calculate values.</p>
+                </div>
+                <div class="comparison-scroll">
+                    <table class="comparison-table">
+                        <thead><tr><th>Metric</th><th>Attention U-Net</th><th>HRNet-OCR</th><th>Better model</th></tr></thead>
+                        <tbody id="comparison-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Script imports -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
